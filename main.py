@@ -1,48 +1,27 @@
-import os
-import wx
-from pptx import Presentation
+from spire.presentation import *
+
+# 创建一个 Presentation 对象
+pres1 = Presentation()
+pres2 = Presentation()
 
 
-class MergePPTFrame(wx.Frame):
-    def __init__(self, parent, title):
-        super(MergePPTFrame, self).__init__(parent, title=title, size=(400, 200))
+# 加载演示文稿文档
+pres1.LoadFromFile(r"D:\PPT_Merge\pythonProject\test备选pptx\西井科技-Q-Tractor v2 20240418.pptx")
+pres2.LoadFromFile(r"D:\PPT_Merge\pythonProject\test备选pptx\西井科技介绍 -机场版1211.pptx")
 
-        panel = wx.Panel(self)
-        vbox = wx.BoxSizer(wx.VERTICAL)
+# 打印 pres1 和 pres2 的幻灯片数量
+print(f"pres1 initial slide count: {len(pres1.Slides)}")
+print(f"pres2 slide count: {len(pres2.Slides)}")
 
-        self.folder_path = wx.StaticText(panel, label="选择文件夹:")
-        vbox.Add(self.folder_path, flag=wx.ALL, border=10)
+# 遍历第二个演示文稿的幻灯片
+for slide in pres2.Slides:
+    # 将每张幻灯片添加到第一个演示文稿并保留其原始设计
+    pres1.Slides.AppendBySlide(slide)
 
-        self.merge_button = wx.Button(panel, label="合并PPT")
-        self.merge_button.Bind(wx.EVT_BUTTON, self.on_merge)
-        vbox.Add(self.merge_button, flag=wx.ALIGN_CENTER | wx.ALL, border=10)
+# 打印合并后的幻灯片数量
+print(f"pres1 final slide count: {len(pres1.Slides)}")
 
-        panel.SetSizer(vbox)
-        self.Show(True)
-
-    def on_merge(self, event):
-        dialog = wx.DirDialog(self, "选择文件夹", style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
-        if dialog.ShowModal() == wx.ID_OK:
-            folder_path = dialog.GetPath()
-            self.folder_path.SetLabelText("选择文件夹: {}".format(folder_path))
-            self.merge_ppt_files(folder_path)
-        dialog.Destroy()
-
-    def merge_ppt_files(self, folder_path):
-        output_ppt = Presentation()
-
-        for root, dirs, files in os.walk(folder_path):
-            for file in files:
-                if file.endswith(".ppt") or file.endswith(".pptx"):
-                    ppt_path = os.path.join(root, file)
-                    presentation = Presentation(ppt_path)
-                    for slide in presentation.slides._sldIdLst:
-                        output_ppt.slides._sldIdLst.append(slide)
-
-        output_ppt.save("merged_ppt.pptx")
-        wx.MessageBox("PPT文件合并完成！", "提示", wx.OK | wx.ICON_INFORMATION)
-
-
-app = wx.App()
-MergePPTFrame(None, title='PPT合并工具')
-app.MainLoop()
+# 保存第一个演示文稿
+pres1.SaveToFile(r"D:\PPT_Merge\pythonProject\test备选pptx\MergePresentations.pptx", FileFormat.Pptx2019)
+pres1.Dispose()
+pres2.Dispose()
