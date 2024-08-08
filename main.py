@@ -115,6 +115,6 @@ class PPTMergerApp:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.geometry("1000x500")
+    root.geometry("500x500")
     app = PPTMergerApp(root)
     root.mainloop()
