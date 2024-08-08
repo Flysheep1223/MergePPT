@@ -1,27 +1,71 @@
-from spire.presentation import *
-
-# 创建一个 Presentation 对象
-pres1 = Presentation()
-pres2 = Presentation()
+import tkinter as tk
+from tkinter import filedialog, messagebox
+from spire.presentation import Presentation, FileFormat
 
 
-# 加载演示文稿文档
-pres1.LoadFromFile(r"D:\PPT_Merge\pythonProject\test备选pptx\西井科技-Q-Tractor v2 20240418.pptx")
-pres2.LoadFromFile(r"D:\PPT_Merge\pythonProject\test备选pptx\西井科技介绍 -机场版1211.pptx")
+class PPTMergerApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("PPT Merger")
 
-# 打印 pres1 和 pres2 的幻灯片数量
-print(f"pres1 initial slide count: {len(pres1.Slides)}")
-print(f"pres2 slide count: {len(pres2.Slides)}")
+        self.file_paths = []
 
-# 遍历第二个演示文稿的幻灯片
-for slide in pres2.Slides:
-    # 将每张幻灯片添加到第一个演示文稿并保留其原始设计
-    pres1.Slides.AppendBySlide(slide)
+        self.add_button = tk.Button(root, text="Add PPT File", command=self.add_file)
+        self.add_button.pack(pady=10)
 
-# 打印合并后的幻灯片数量
-print(f"pres1 final slide count: {len(pres1.Slides)}")
+        self.merge_button = tk.Button(root, text="Merge PPT Files", command=self.merge_files)
+        self.merge_button.pack(pady=10)
 
-# 保存第一个演示文稿
-pres1.SaveToFile(r"D:\PPT_Merge\pythonProject\test备选pptx\MergePresentations.pptx", FileFormat.Pptx2019)
-pres1.Dispose()
-pres2.Dispose()
+        self.listbox = tk.Listbox(root, width=50)
+        self.listbox.pack(pady=10)
+
+        self.save_path = tk.StringVar()
+        self.save_path_entry = tk.Entry(root, textvariable=self.save_path, width=50)
+        self.save_path_entry.pack(pady=10)
+
+        self.browse_button = tk.Button(root, text="Browse Save Location", command=self.browse_save_location)
+        self.browse_button.pack(pady=10)
+
+    def add_file(self):
+        file_path = filedialog.askopenfilename(filetypes=[("PPTX files", "*.pptx")])
+        if file_path:
+            self.file_paths.append(file_path)
+            self.listbox.insert(tk.END, file_path)
+
+    def browse_save_location(self):
+        save_path = filedialog.asksaveasfilename(defaultextension=".pptx", filetypes=[("PPTX files", "*.pptx")])
+        if save_path:
+            self.save_path.set(save_path)
+
+    def merge_files(self):
+        if not self.file_paths:
+            messagebox.showwarning("Warning", "No PPT files selected!")
+            return
+
+        if not self.save_path.get():
+            messagebox.showwarning("Warning", "No save location specified!")
+            return
+
+        try:
+            pres1 = Presentation()
+            pres1.LoadFromFile(self.file_paths[0])
+
+            for file_path in self.file_paths[1:]:
+                pres = Presentation()
+                pres.LoadFromFile(file_path)
+                for slide in pres.Slides:
+                    pres1.Slides.AppendBySlide(slide)
+                pres.Dispose()
+
+            pres1.SaveToFile(self.save_path.get(), FileFormat.Pptx2019)
+            pres1.Dispose()
+
+            messagebox.showinfo("Success", "PPT files merged successfully!")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = PPTMergerApp(root)
+    root.mainloop()
