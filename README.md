@@ -12,6 +12,6 @@ STEP3: 遍历副本3的每一页ppt，按顺序复制粘贴进入副本1
 ... ...  
 STEPn: 从主存导出副本1到外存
 
-**ctmd,用的库居然有自带水印，会在生成的pptx中的每一页ppt左上角打上“Eval
+**用的库自带水印，会在生成的pptx中的每一页ppt左上角打上“Eval
 uation Warning : The document was created with Spire.Presenta
-tion for Python”，还没找到解决办法，气死我了**
+tion for Python”，如果需要去除水印需要找源库作者购买**
